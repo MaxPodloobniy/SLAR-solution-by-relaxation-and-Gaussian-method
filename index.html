@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SLAR solution</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="calculations.js"></script>
+</head>
+<body>
+<label for="row_input">Number of rows</label>
+<select id="row_input" name="choices">
+    <option value="3" selected>3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+</select>
+<div id="table-container"></div>
+<label for="relax_input" id="lb_relax">Enter relaxation parameter</label><input type="text" id="relax_input"><br>
+<label for="e_input" id="lb_e">Select calculation accuracy</label><select id="e_input" name="choices">
+    <option value="0.001">10^-3</option>
+    <option value="0.0001">10^-4</option>
+    <option value="0.00001">10^-5</option>
+    <option value="0.000001">10^-6</option>
+    <option value="0.0000001">10^-7</option>
+</select><br>
+<button id="calc_but" onclick="calc()">Calculate</button>
+<button onclick="clearInputs()" id="clear_but">Clear</button>
+<div id="result_container"></div>
+
+
+<script>
+    let rows = 3;
+    makeTable(rows);
+
+    const myInput = document.getElementById('row_input');
+    myInput.addEventListener('input', () => {
+        rows = parseInt(myInput.value);
+        makeTable(rows);
+        rewrite(rows);
+    });
+
+
+    // Rewrites buttons and inputs if user chose another rows quantity
+    function rewrite(rows){
+        document.getElementById('relax_input').style.top = (1+rows)*30+'px';
+        document.getElementById('lb_relax').style.top = (1+rows)*30+'px';
+        document.getElementById('e_input').style.top = (2+rows)*30+'px';
+        document.getElementById('lb_e').style.top = (2+rows)*30+'px';
+        document.getElementById('calc_but').style.top = (3+rows)*30+'px';
+        document.getElementById('clear_but').style.top = (3+rows)*30+'px';
+        document.getElementById('result_container').style.top = (4+rows)*30+'px';
+    }
+    function makeTable(rows){
+        const cols = rows*2+1;
+        const container = document.getElementById('table-container');
+        container.innerHTML = '';
+        const table = document.createElement('table');
+        table.style.position = 'absolute';
+        table.style.top = '30px';
+        const tbody = document.createElement('tbody');
+        const list = [];
+
+        for (let i = 0; i < rows; i++) {
+            const tr = document.createElement('tr');
+            for (let j = 0; j < cols; j++) {
+                const td = document.createElement('td');
+                if (j % 2 === 0 && j !== cols - 1){
+                    // We create inputs for the values of a
+                    const input = document.createElement('input');
+                    list.push('a_' + i + '_' + (j)/2);
+                    input.type = 'text';
+                    input.style.width = '25px';
+                    input.id = 'a_' + i + '_' + (j)/2;
+                    td.appendChild(input);
+                } else if (j % 2 === 1 && j !== cols - 2) {
+                    // Create labels for xs
+                    const label = document.createElement('label');
+                    const x_num = Math.floor(j/2)+1;
+                    label.htmlFor = 'a_' + i + '_' + (j+1)/2;
+                    label.textContent = ' * x' + x_num + ' + ';
+                    td.appendChild(label);
+                } else if (j === cols - 2){
+                    // Create labels for the last x in each row
+                    const label = document.createElement('label');
+                    const x_num = Math.floor(j/2)+1;
+                    label.htmlFor = 'b_' + i;
+                    label.textContent = ' * x' + x_num + ' = ';
+                    td.appendChild(label);
+                } else if (j === cols - 1){
+                    // Create inputs for b values
+                    const input = document.createElement('input');
+                    input.style.width = '25px';
+                    input.type = 'text';
+                    input.id = 'b_' + i;
+                    td.appendChild(input);
+                    const br = document.createElement('br');
+                    td.appendChild(br);
+                }
+                tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+        }
+
+        table.appendChild(tbody);
+        container.appendChild(table);
+    }
+
+    function calc(){
+        const rows = parseInt(document.getElementById("row_input").value.toString());
+
+        let a_list = getValues(rows, 'a_list');
+        let b_list = getValues(rows, 'b_list');
+        let e = getValues(rows, 'e');
+        let w = getValues(rows, 'w');
+        let checker = true;
+        let results = [];
+
+        for(let i = 0; i < a_list.length; i++){
+            if (a_list[i].length !== rows || b_list.length !== rows){
+                checker = false;
+            }
+        }
+
+        if (e > 1 || e < 0){
+            checker = false;
+        }
+
+        if (check_A(a_list) === false){
+                checker = false;
+                alert("The condition of convergence is not fulfilled, another method of solving SLAR will be used");
+
+                alert(a_list);
+                alert(b_list);
+                results = solveGaussianElimination(a_list, b_list);
+                alert(results);
+                const container = document.getElementById('result_container');
+                container.innerHTML = '';
+
+                const label = document.createElement('label');
+                label.textContent = 'Obtained results:';
+                container.appendChild(label);
+                container.appendChild(document.createElement('br'));
+                for(let i = 0; i < results.length; i++){
+                    const label = document.createElement('label');
+                    label.textContent = 'x' + (i+1) + ' = ' + results[i].toFixed((1/e).toString().length);
+                    container.appendChild(label);
+                    container.appendChild(document.createElement('br'));
+                }
+
+        }
+
+        if (checker){
+                alert(a_list);
+                alert(b_list);
+
+                results = solveLinearEquations(a_list, b_list, w, e);
+                const container = document.getElementById('result_container');
+                container.innerHTML = '';
+
+                const label = document.createElement('label');
+                label.textContent = 'Obtained results:';
+                container.appendChild(label);
+                container.appendChild(document.createElement('br'));
+                for (let i = 0; i < results.length; i++) {
+                    const label = document.createElement('label');
+                    label.textContent = 'x' + (i+1) + ' = ' + results[i].toFixed((1/e).toString().length);
+                    container.appendChild(label);
+                    container.appendChild(document.createElement('br'));
+                }
+        }
+    }
+</script>
+
+<script src="main.js">
+    require ('./render.js');
+</script>
+</body>
+</html>

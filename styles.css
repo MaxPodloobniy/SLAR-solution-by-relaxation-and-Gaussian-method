@@ -1,0 +1,40 @@
+#lb_relax{
+    position: absolute;
+    top: 120px;
+    left: 7px;
+}
+
+#relax_input{
+    position: absolute;
+    top: 120px;
+    left: 183px;
+    width: 30px;
+}
+
+#lb_e{
+    position: absolute;
+    top: 150px;
+    left: 7px;
+}
+
+#e_input{
+    position: absolute;
+    top: 150px;
+    left: 185px;
+}
+
+#calc_but{
+    position: absolute;
+    top: 180px;
+}
+
+#clear_but{
+    position: absolute;
+    top: 180px;
+    left: 90px;
+}
+
+#result_container{
+    position: absolute;
+    top: 210px;
+}

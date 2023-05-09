@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lab 4</title>
+    <style>
+    </style>
+    <script>
+        function some_func(){
+            const input = document.getElementById("input");
+            alert('Result:'+input.value.toString())
+        }
+    </script>
+</head>
+<body>
+<label for="row_input">Кількість рядків</label>
+<select id="row_input" name="choices">
+    <option value="3" selected>3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+</select><br>
+<label for="input" id="lb_relax">Введіть параметр релаксації</label><input type="text" id="input"><br>
+<button onclick="some_func()">Do</button>
+
+
+</body>
+</html>
